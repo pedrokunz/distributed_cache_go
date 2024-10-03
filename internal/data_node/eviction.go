@@ -7,7 +7,7 @@ import (
 
 type LRUCache struct {
 	capacity   int
-	cache      map[string]*list.Element
+	Cache      map[string]*list.Element
 	list       *list.List
 	usageCount map[string]int
 }
@@ -20,14 +20,14 @@ type entry struct {
 func NewLRUCache(capacity int) *LRUCache {
 	return &LRUCache{
 		capacity:   capacity,
-		cache:      make(map[string]*list.Element),
+		Cache:      make(map[string]*list.Element),
 		list:       list.New(),
 		usageCount: make(map[string]int),
 	}
 }
 
 func (c *LRUCache) Get(key string) (string, bool) {
-	elem, exists := c.cache[key]
+	elem, exists := c.Cache[key]
 	if exists {
 		c.list.MoveToFront(elem)
 		c.usageCount[key]++
@@ -38,7 +38,7 @@ func (c *LRUCache) Get(key string) (string, bool) {
 }
 
 func (c *LRUCache) Set(key, value string) {
-	elem, exists := c.cache[key]
+	elem, exists := c.Cache[key]
 	if exists {
 		c.list.MoveToFront(elem)
 		elem.Value.(*entry).value = value
@@ -48,7 +48,7 @@ func (c *LRUCache) Set(key, value string) {
 		}
 
 		el := c.list.PushFront(&entry{key, value})
-		c.cache[key] = el
+		c.Cache[key] = el
 		c.usageCount[key] = 0
 	}
 
@@ -58,11 +58,11 @@ func (c *LRUCache) Set(key, value string) {
 }
 
 func (c *LRUCache) Delete(key string) {
-	elem, exists := c.cache[key]
+	elem, exists := c.Cache[key]
 	if exists {
 		c.list.Remove(elem)
 
-		delete(c.cache, key)
+		delete(c.Cache, key)
 		delete(c.usageCount, key)
 
 		log.Printf("Cache: Key %s has been deleted\n", key)
@@ -75,7 +75,7 @@ func (c *LRUCache) evict() {
 		c.list.Remove(el)
 
 		kv := el.Value.(*entry)
-		delete(c.cache, kv.key)
+		delete(c.Cache, kv.key)
 		delete(c.usageCount, kv.key)
 
 		log.Printf("Cache: Key %s has been evicted\n", kv.key)

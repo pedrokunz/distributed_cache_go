@@ -62,3 +62,36 @@ func TestDataNode_ConcurrentSetAndGet(t *testing.T) {
 	}
 	wg.Wait()
 }
+
+func TestLRUCacheEviction(t *testing.T) {
+	capacity := 100
+	lru := data_node.NewLRUCache(capacity)
+
+	// Insert more items than the capacity to trigger eviction
+	for i := 0; i < capacity*2; i++ {
+		key := "key" + strconv.Itoa(i)
+		value := "value" + strconv.Itoa(i)
+		lru.Set(key, value)
+	}
+
+	// Check that the cache size does not exceed the capacity
+	if len(lru.Cache) > capacity {
+		t.Errorf("expected cache size to be %d, but got %d", capacity, len(lru.Cache))
+	}
+
+	// Check that the first inserted items have been evicted
+	for i := 0; i < capacity; i++ {
+		key := "key" + strconv.Itoa(i)
+		if _, exists := lru.Get(key); exists {
+			t.Errorf("expected key %s to be evicted, but it still exists", key)
+		}
+	}
+
+	// Check that the last inserted items are still in the cache
+	for i := capacity; i < capacity*2; i++ {
+		key := "key" + strconv.Itoa(i)
+		if value, exists := lru.Get(key); !exists || value != "value"+strconv.Itoa(i) {
+			t.Errorf("expected key %s to be in the cache with value %s, but got %s", key, "value"+strconv.Itoa(i), value)
+		}
+	}
+}
