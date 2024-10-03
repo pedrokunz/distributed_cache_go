@@ -23,6 +23,9 @@ func (cm *CacheManager) GetNodeForKey(key string) (string, bool) {
 	defer cm.mu.RUnlock()
 
 	node, exists := cm.keyToNode[key]
+	if !exists {
+		log.Printf("Key %s does not exist\n", key)
+	}
 
 	return node, exists
 }
