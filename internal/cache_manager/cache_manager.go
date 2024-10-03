@@ -8,11 +8,13 @@ import (
 type CacheManager struct {
 	mu        sync.RWMutex
 	keyToNode map[string]string
+	pubSub    *PubSub
 }
 
 func New() *CacheManager {
 	return &CacheManager{
 		keyToNode: make(map[string]string),
+		pubSub:    NewPubSub(),
 	}
 }
 
@@ -32,4 +34,10 @@ func (cm *CacheManager) SetNodeForKey(key, node string) {
 	cm.keyToNode[key] = node
 
 	log.Printf("Key %s is now on node %s\n", key, node)
+
+	cm.pubSub.Publish("node_key_assignment", key)
+}
+
+func (cm *CacheManager) SubscribeToNodeKeyAssignment() chan string {
+	return cm.pubSub.Subscribe("node_key_assignment")
 }
