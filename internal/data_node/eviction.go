@@ -6,9 +6,10 @@ import (
 )
 
 type LRUCache struct {
-	capacity int
-	cache    map[string]*list.Element
-	list     *list.List
+	capacity   int
+	cache      map[string]*list.Element
+	list       *list.List
+	usageCount map[string]int
 }
 
 type entry struct {
@@ -18,9 +19,10 @@ type entry struct {
 
 func NewLRUCache(capacity int) *LRUCache {
 	return &LRUCache{
-		capacity: capacity,
-		cache:    make(map[string]*list.Element),
-		list:     list.New(),
+		capacity:   capacity,
+		cache:      make(map[string]*list.Element),
+		list:       list.New(),
+		usageCount: make(map[string]int),
 	}
 }
 
@@ -28,6 +30,7 @@ func (c *LRUCache) Get(key string) (string, bool) {
 	elem, exists := c.cache[key]
 	if exists {
 		c.list.MoveToFront(elem)
+		c.usageCount[key]++
 		return elem.Value.(*entry).value, true
 	}
 
@@ -46,7 +49,10 @@ func (c *LRUCache) Set(key, value string) {
 
 		el := c.list.PushFront(&entry{key, value})
 		c.cache[key] = el
+		c.usageCount[key] = 0
 	}
+
+	c.usageCount[key]++
 
 	log.Printf("Key %s is now set to %s\n", key, value)
 }
@@ -58,6 +64,7 @@ func (c *LRUCache) evict() {
 
 		kv := el.Value.(*entry)
 		delete(c.cache, kv.key)
+		delete(c.usageCount, kv.key)
 
 		log.Printf("Key %s has been evicted\n", kv.key)
 	}
