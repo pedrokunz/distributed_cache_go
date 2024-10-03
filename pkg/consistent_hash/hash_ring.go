@@ -9,8 +9,7 @@ import (
 )
 
 // HashRing is a consistent hash ring data structure
-// - It manages the consistent hashing logic
-// - It determines the node for a given key based on the hash
+// It manages the consistent hashing logic and determines the node for a given key based on the hash
 type HashRing struct {
 	mu       sync.RWMutex
 	replicas int
@@ -18,6 +17,7 @@ type HashRing struct {
 	hashMap  map[int]*data_node.DataNode
 }
 
+// New creates a new HashRing with the specified number of replicas.
 func New(replicas int) *HashRing {
 	return &HashRing{
 		replicas: replicas,
@@ -25,6 +25,7 @@ func New(replicas int) *HashRing {
 	}
 }
 
+// AddNode adds a new data node to the hash ring.
 func (hr *HashRing) AddNode(node *data_node.DataNode) {
 	hr.mu.Lock()
 	defer hr.mu.Unlock()
@@ -38,6 +39,7 @@ func (hr *HashRing) AddNode(node *data_node.DataNode) {
 	sort.Ints(hr.keys)
 }
 
+// RemoveNode removes a data node from the hash ring.
 func (hr *HashRing) RemoveNode(node *data_node.DataNode) {
 	hr.mu.Lock()
 	defer hr.mu.Unlock()
@@ -54,6 +56,7 @@ func (hr *HashRing) RemoveNode(node *data_node.DataNode) {
 	}
 }
 
+// GetNode returns the data node responsible for the given key.
 func (hr *HashRing) GetNode(key string) *data_node.DataNode {
 	hr.mu.RLock()
 	defer hr.mu.RUnlock()
@@ -74,6 +77,7 @@ func (hr *HashRing) GetNode(key string) *data_node.DataNode {
 	return hr.hashMap[hr.keys[index]]
 }
 
+// Nodes returns all data nodes in the hash ring.
 func (hr *HashRing) Nodes() []*data_node.DataNode {
 	hr.mu.RLock()
 	defer hr.mu.RUnlock()
@@ -86,6 +90,7 @@ func (hr *HashRing) Nodes() []*data_node.DataNode {
 	return nodes
 }
 
+// hashKey generates a hash key for a given replica index and node ID.
 func (hr *HashRing) hashKey(replicaIndex int, nodeID string) int {
 	key := strconv.Itoa(replicaIndex) + nodeID
 	return int(crc32.ChecksumIEEE([]byte(key)))

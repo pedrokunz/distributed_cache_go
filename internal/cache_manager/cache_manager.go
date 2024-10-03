@@ -24,7 +24,7 @@ type CacheManager struct {
 func New() *CacheManager {
 	return &CacheManager{
 		keyToNode: make(map[string]*data_node.DataNode),
-		pubSub:    pub_sub.NewPubSub(),
+		pubSub:    pub_sub.New(),
 		hashRing:  consistent_hash.New(3),
 		nodes:     make(map[string]*data_node.DataNode),
 	}

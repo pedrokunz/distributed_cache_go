@@ -5,6 +5,7 @@ import (
 	"log"
 )
 
+// LRUCache is a simple LRU cache implementation
 type LRUCache struct {
 	capacity   int
 	Cache      map[string]*list.Element
@@ -12,11 +13,13 @@ type LRUCache struct {
 	usageCount map[string]int
 }
 
+// entry is a key-value pair stored in the cache
 type entry struct {
 	key   string
 	value string
 }
 
+// NewLRUCache creates a new LRU cache with the specified capacity
 func NewLRUCache(capacity int) *LRUCache {
 	return &LRUCache{
 		capacity:   capacity,
@@ -26,6 +29,7 @@ func NewLRUCache(capacity int) *LRUCache {
 	}
 }
 
+// Get retrieves the value for a given key from the cache
 func (c *LRUCache) Get(key string) (string, bool) {
 	elem, exists := c.Cache[key]
 	if exists {
@@ -37,6 +41,7 @@ func (c *LRUCache) Get(key string) (string, bool) {
 	return "", false
 }
 
+// Set sets the value for a given key in the cache
 func (c *LRUCache) Set(key, value string) {
 	elem, exists := c.Cache[key]
 	if exists {
@@ -57,6 +62,7 @@ func (c *LRUCache) Set(key, value string) {
 	log.Printf("Cache: Key %s is now set to %s\n", key, value)
 }
 
+// Delete deletes a key from the cache
 func (c *LRUCache) Delete(key string) {
 	elem, exists := c.Cache[key]
 	if exists {
@@ -69,6 +75,7 @@ func (c *LRUCache) Delete(key string) {
 	}
 }
 
+// evict evicts the least recently used key from the cache
 func (c *LRUCache) evict() {
 	el := c.list.Back()
 	if el != nil {

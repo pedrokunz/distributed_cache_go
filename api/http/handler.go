@@ -6,16 +6,19 @@ import (
 	"net/http"
 )
 
+// Handler is an HTTP handler for the cache manager
 type Handler struct {
 	cacheManager *cache_manager.CacheManager
 }
 
+// New creates a new Handler instance
 func New(cacheManager *cache_manager.CacheManager) *Handler {
 	return &Handler{
 		cacheManager: cacheManager,
 	}
 }
 
+// ServeHTTP implements the http.Handler interface
 func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodGet:
@@ -29,6 +32,7 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// handleGet handles GET requests to retrieve a key-value pair from the cache
 func (h *Handler) handleGet(w http.ResponseWriter, r *http.Request) {
 	key := r.URL.Query().Get("key")
 	if key == "" {
@@ -50,6 +54,7 @@ func (h *Handler) handleGet(w http.ResponseWriter, r *http.Request) {
 	_ = json.NewEncoder(w).Encode(response)
 }
 
+// handlePost handles POST requests to set a key-value pair in the cache
 func (h *Handler) handlePost(w http.ResponseWriter, r *http.Request) {
 	key := r.URL.Query().Get("key")
 	value := r.URL.Query().Get("value")
@@ -70,6 +75,7 @@ func (h *Handler) handlePost(w http.ResponseWriter, r *http.Request) {
 	_ = json.NewEncoder(w).Encode(response)
 }
 
+// handleDelete handles DELETE requests to delete a key-value pair from the cache
 func (h *Handler) handleDelete(w http.ResponseWriter, r *http.Request) {
 	key := r.URL.Query().Get("key")
 	if key == "" {

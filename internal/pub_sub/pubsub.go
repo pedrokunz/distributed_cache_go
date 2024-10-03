@@ -2,17 +2,20 @@ package pub_sub
 
 import "sync"
 
+// PubSub is a simple pub-sub implementation
 type PubSub struct {
 	mu          sync.RWMutex
 	subscribers map[string][]chan string
 }
 
-func NewPubSub() *PubSub {
+// New creates a new PubSub instance
+func New() *PubSub {
 	return &PubSub{
 		subscribers: make(map[string][]chan string),
 	}
 }
 
+// Subscribe subscribes to a topic
 func (ps *PubSub) Subscribe(topic string) chan string {
 	ps.mu.Lock()
 	defer ps.mu.Unlock()
@@ -23,6 +26,7 @@ func (ps *PubSub) Subscribe(topic string) chan string {
 	return ch
 }
 
+// Publish publishes a message to a topic
 func (ps *PubSub) Publish(topic, message string) {
 	ps.mu.RLock()
 	defer ps.mu.RUnlock()

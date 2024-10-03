@@ -7,12 +7,14 @@ import (
 	"sync"
 )
 
+// DataNode represents a data node in the distributed cache system
 type DataNode struct {
 	mu    sync.RWMutex
 	cache *LRUCache
 	id    uuid.UUID
 }
 
+// New creates a new DataNode instance
 func New() *DataNode {
 	return &DataNode{
 		cache: NewLRUCache(1000),
@@ -20,10 +22,12 @@ func New() *DataNode {
 	}
 }
 
+// ID returns the ID of the data node
 func (dn *DataNode) ID() string {
 	return dn.id.String()
 }
 
+// Get retrieves the value for a given key from the cache
 func (dn *DataNode) Get(key string) (string, bool) {
 	dn.mu.RLock()
 	defer dn.mu.RUnlock()
@@ -36,6 +40,7 @@ func (dn *DataNode) Get(key string) (string, bool) {
 	return value, exists
 }
 
+// Set sets the value for a given key in the cache
 func (dn *DataNode) Set(key, value string) {
 	dn.mu.Lock()
 	defer dn.mu.Unlock()
@@ -45,6 +50,7 @@ func (dn *DataNode) Set(key, value string) {
 	log.Printf("Key %s is now set to %s\n", key, value)
 }
 
+// InvalidateCache invalidates a key in the cache
 func (dn *DataNode) InvalidateCache(key string) {
 	dn.mu.Lock()
 	defer dn.mu.Unlock()
@@ -54,6 +60,7 @@ func (dn *DataNode) InvalidateCache(key string) {
 	log.Printf("Key %s has been invalidated\n", key)
 }
 
+// SubscribeToCacheInvalidation subscribes to cache invalidation events
 func (dn *DataNode) SubscribeToCacheInvalidation(pubSub *pub_sub.PubSub) {
 	invalidationChan := pubSub.Subscribe("cache_invalidation")
 	go func() {
