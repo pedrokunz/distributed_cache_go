@@ -1,4 +1,4 @@
-package cache_manager
+package pub_sub
 
 import "sync"
 
