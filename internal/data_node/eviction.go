@@ -57,6 +57,18 @@ func (c *LRUCache) Set(key, value string) {
 	log.Printf("Key %s is now set to %s\n", key, value)
 }
 
+func (c *LRUCache) Delete(key string) {
+	elem, exists := c.cache[key]
+	if exists {
+		c.list.Remove(elem)
+
+		delete(c.cache, key)
+		delete(c.usageCount, key)
+
+		log.Printf("Key %s has been deleted\n", key)
+	}
+}
+
 func (c *LRUCache) evict() {
 	el := c.list.Back()
 	if el != nil {

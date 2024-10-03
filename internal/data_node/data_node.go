@@ -1,6 +1,7 @@
 package data_node
 
 import (
+	"github.com/pedrokunz/distributed_cache_go/internal/cache_manager"
 	"log"
 	"sync"
 )
@@ -35,4 +36,22 @@ func (dn *DataNode) Set(key, value string) {
 	dn.cache.Set(key, value)
 
 	log.Printf("Key %s is now set to %s\n", key, value)
+}
+
+func (dn *DataNode) InvalidateCache(key string) {
+	dn.mu.Lock()
+	defer dn.mu.Unlock()
+
+	dn.cache.Delete(key)
+
+	log.Printf("Key %s has been invalidated\n", key)
+}
+
+func (dn *DataNode) SubscribeToCacheInvalidation(pubSub *cache_manager.PubSub) {
+	invalidationChan := pubSub.Subscribe("cache_invalidation")
+	go func() {
+		for key := range invalidationChan {
+			dn.InvalidateCache(key)
+		}
+	}()
 }
