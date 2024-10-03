@@ -1,7 +1,8 @@
 package data_node
 
 import (
-	"github.com/pedrokunz/distributed_cache_go/internal/cache_manager"
+	"github.com/google/uuid"
+	"github.com/pedrokunz/distributed_cache_go/internal/pub_sub"
 	"log"
 	"sync"
 )
@@ -9,12 +10,18 @@ import (
 type DataNode struct {
 	mu    sync.RWMutex
 	cache *LRUCache
+	id    uuid.UUID
 }
 
 func New() *DataNode {
 	return &DataNode{
 		cache: NewLRUCache(1000),
+		id:    uuid.New(),
 	}
+}
+
+func (dn *DataNode) ID() string {
+	return dn.id.String()
 }
 
 func (dn *DataNode) Get(key string) (string, bool) {
@@ -47,7 +54,7 @@ func (dn *DataNode) InvalidateCache(key string) {
 	log.Printf("Key %s has been invalidated\n", key)
 }
 
-func (dn *DataNode) SubscribeToCacheInvalidation(pubSub *cache_manager.PubSub) {
+func (dn *DataNode) SubscribeToCacheInvalidation(pubSub *pub_sub.PubSub) {
 	invalidationChan := pubSub.Subscribe("cache_invalidation")
 	go func() {
 		for key := range invalidationChan {
