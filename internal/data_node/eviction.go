@@ -54,7 +54,7 @@ func (c *LRUCache) Set(key, value string) {
 
 	c.usageCount[key]++
 
-	log.Printf("Key %s is now set to %s\n", key, value)
+	log.Printf("Cache: Key %s is now set to %s\n", key, value)
 }
 
 func (c *LRUCache) Delete(key string) {
@@ -65,7 +65,7 @@ func (c *LRUCache) Delete(key string) {
 		delete(c.cache, key)
 		delete(c.usageCount, key)
 
-		log.Printf("Key %s has been deleted\n", key)
+		log.Printf("Cache: Key %s has been deleted\n", key)
 	}
 }
 
@@ -78,6 +78,6 @@ func (c *LRUCache) evict() {
 		delete(c.cache, kv.key)
 		delete(c.usageCount, kv.key)
 
-		log.Printf("Key %s has been evicted\n", kv.key)
+		log.Printf("Cache: Key %s has been evicted\n", kv.key)
 	}
 }
