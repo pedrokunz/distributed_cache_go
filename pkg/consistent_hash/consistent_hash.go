@@ -50,6 +50,26 @@ func (hr *HashRing) RemoveNode(node string) {
 	}
 }
 
+func (hr *HashRing) GetNode(node string) string {
+	hr.mu.RLock()
+	defer hr.mu.RUnlock()
+
+	if len(hr.keys) == 0 {
+		return ""
+	}
+
+	hash := hr.hashKey(0, node)
+	index := sort.Search(len(hr.keys), func(i int) bool {
+		return hr.keys[i] >= hash
+	})
+
+	if index == len(hr.keys) {
+		index = 0
+	}
+
+	return hr.hashMap[hr.keys[index]]
+}
+
 func (hr *HashRing) hashKey(replicaIndex int, node string) int {
 	key := strconv.Itoa(replicaIndex) + node
 	return int(crc32.ChecksumIEEE([]byte(key)))
